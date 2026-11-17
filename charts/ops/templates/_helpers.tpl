@@ -1,34 +1,34 @@
-{{- define "opsolete.name" -}}
+{{- define "ops.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "opsolete.fullname" -}}
+{{- define "ops.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else if contains (include "opsolete.name" .) .Release.Name -}}
+{{- else if contains (include "ops.name" .) .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name (include "opsolete.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "ops.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "opsolete.labels" -}}
+{{- define "ops.labels" -}}
 helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version }}
-app.kubernetes.io/name: {{ include "opsolete.name" . }}
+app.kubernetes.io/name: {{ include "ops.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
-{{/* usage: include "opsolete.selectorLabels" (list . "app") */}}
-{{- define "opsolete.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "opsolete.name" (index . 0) }}
+{{/* usage: include "ops.selectorLabels" (list . "app") */}}
+{{- define "ops.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "ops.name" (index . 0) }}
 app.kubernetes.io/instance: {{ (index . 0).Release.Name }}
 app.kubernetes.io/component: {{ index . 1 }}
 {{- end -}}
 
 {{/* the app's plain settings (config), as env entries */}}
-{{- define "opsolete.configEnv" -}}
+{{- define "ops.configEnv" -}}
 {{- range $k, $v := .Values.config }}
 {{- if $v }}
 - name: {{ $k }}
@@ -37,20 +37,20 @@ app.kubernetes.io/component: {{ index . 1 }}
 {{- end }}
 {{- end -}}
 
-{{- define "opsolete.secretName" -}}
-{{- default (include "opsolete.fullname" .) .Values.secrets.existingSecret -}}
+{{- define "ops.secretName" -}}
+{{- default (include "ops.fullname" .) .Values.secrets.existingSecret -}}
 {{- end -}}
 
-{{- define "opsolete.serviceAccountName" -}}
+{{- define "ops.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
-{{- default (include "opsolete.fullname" .) .Values.serviceAccount.name -}}
+{{- default (include "ops.fullname" .) .Values.serviceAccount.name -}}
 {{- else -}}
 {{- default "default" .Values.serviceAccount.name -}}
 {{- end -}}
 {{- end -}}
 
 {{/* Restricted Pod Security Standard; the images ship as non-root users. */}}
-{{- define "opsolete.podSecurityContext" -}}
+{{- define "ops.podSecurityContext" -}}
 runAsNonRoot: true
 runAsUser: {{ . }}
 runAsGroup: {{ . }}
@@ -59,7 +59,7 @@ seccompProfile:
   type: RuntimeDefault
 {{- end -}}
 
-{{- define "opsolete.containerSecurityContext" -}}
+{{- define "ops.containerSecurityContext" -}}
 allowPrivilegeEscalation: false
 readOnlyRootFilesystem: true
 privileged: false

@@ -13,19 +13,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "opsolete.fullname" . }}
+  name: {{ include "ops.fullname" . }}
   labels:
-    {{- include "opsolete.labels" . | nindent 4 }}
+    {{- include "ops.labels" . | nindent 4 }}
     app.kubernetes.io/component: app
 spec:
   replicas: {{ .Values.app.replicas }}
   selector:
     matchLabels:
-      {{- include "opsolete.selectorLabels" (list . "app") | nindent 6 }}
+      {{- include "ops.selectorLabels" (list . "app") | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "opsolete.selectorLabels" (list . "app") | nindent 8 }}
+        {{- include "ops.selectorLabels" (list . "app") | nindent 8 }}
         {{- if eq $wi.provider "azure" }}
         azure.workload.identity/use: "true"
         {{- end }}
@@ -39,11 +39,11 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      serviceAccountName: {{ include "opsolete.serviceAccountName" . }}
+      serviceAccountName: {{ include "ops.serviceAccountName" . }}
       automountServiceAccountToken: false
       enableServiceLinks: false
       securityContext:
-        {{- include "opsolete.podSecurityContext" 65532 | nindent 8 }}
+        {{- include "ops.podSecurityContext" 65532 | nindent 8 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -55,14 +55,14 @@ spec:
         - name: register-runner
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.app.image.pullPolicy }}
-          command: ["/bin/opsolete", "runner-token", "-from-env", "RUNNER_TOKEN", "-pool", {{ .Values.runner.pool | quote }}, {{ .Values.runner.name | quote }}]
+          command: ["/bin/ops", "runner-token", "-from-env", "RUNNER_TOKEN", "-pool", {{ .Values.runner.pool | quote }}, {{ .Values.runner.name | quote }}]
           securityContext:
-            {{- include "opsolete.containerSecurityContext" . | nindent 12 }}
+            {{- include "ops.containerSecurityContext" . | nindent 12 }}
           env:
-            {{- include "opsolete.configEnv" . | nindent 12 }}
+            {{- include "ops.configEnv" . | nindent 12 }}
           envFrom:
             - secretRef:
-                name: {{ include "opsolete.secretName" . }}
+                name: {{ include "ops.secretName" . }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -72,17 +72,17 @@ spec:
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.app.image.pullPolicy }}
           securityContext:
-            {{- include "opsolete.containerSecurityContext" . | nindent 12 }}
+            {{- include "ops.containerSecurityContext" . | nindent 12 }}
           env:
             - name: ADDR
               value: ":8080"
-            {{- include "opsolete.configEnv" . | nindent 12 }}
+            {{- include "ops.configEnv" . | nindent 12 }}
             # the runners' token isn't the app's (it warns when set): the init container registers it
             - name: RUNNER_TOKEN
               value: ""
           envFrom:
             - secretRef:
-                name: {{ include "opsolete.secretName" . }}
+                name: {{ include "ops.secretName" . }}
           ports:
             - name: http
               containerPort: 8080

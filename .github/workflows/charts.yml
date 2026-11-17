@@ -52,10 +52,10 @@ jobs:
 
       # Guards the render-time checks in deployment-app.yaml: missing STATE_STORE or
       # login must fail `helm template`, not ship a pod that crash-loops.
-      - name: opsolete rejects incomplete config
+      - name: ops rejects incomplete config
         run: |
           # existingSecret isolates these checks from the secrets.* check in secret.yaml.
-          render() { helm template ci charts/opsolete --set secrets.existingSecret=x "$@" 2>&1; }
+          render() { helm template ci charts/ops --set secrets.existingSecret=x "$@" 2>&1; }
           expect_fail() { # <expected message> <helm args...>
             msg=$1; shift
             if out=$(render "$@"); then echo "::error::expected render failure for: $*"; exit 1; fi
@@ -67,14 +67,14 @@ jobs:
           expect_fail "login required" --set config.STATE_STORE=gs://tfstate --set config.OIDC_ISSUER=https://idp.example.com
           render --set config.STATE_STORE=gs://tfstate --set config.AUTH_DEV_USER=dev@example.com >/dev/null
           render --set config.STATE_STORE=gs://tfstate \
-            --set config.OIDC_ISSUER=https://idp.example.com --set config.OIDC_CLIENT_ID=opsolete >/dev/null
+            --set config.OIDC_ISSUER=https://idp.example.com --set config.OIDC_CLIENT_ID=ops >/dev/null
 
       - uses: helm/kind-action@ea822c7bf1874f08e5a491df991c228edffc3376 # v1.15.2
 
       - name: Postgres for the install test
         run: |
           kubectl create deployment postgres --image=postgres:17
-          kubectl set env deployment/postgres POSTGRES_USER=opsolete POSTGRES_PASSWORD=opsolete POSTGRES_DB=opsolete
+          kubectl set env deployment/postgres POSTGRES_USER=ops POSTGRES_PASSWORD=ops POSTGRES_DB=ops
           kubectl expose deployment postgres --port=5432
           kubectl rollout status deployment/postgres --timeout=180s
 
@@ -84,13 +84,13 @@ jobs:
       # ct install only waits for ready pods, and a runner whose token the app doesn't know is ready until
       # its first claim fails. Install once more on a database of its own (ct's left runner k8s seen in the
       # shared one) and check the runner reached the app: no restarts, and Settings -> Runners has seen it.
-      - name: opsolete runner connects
+      - name: ops runner connects
         run: |
-          kubectl exec deploy/postgres -- createdb -U opsolete e2e
-          helm install e2e charts/opsolete -f charts/opsolete/ci/e2e-values.yaml --wait --timeout 5m \
-            --set secrets.DATABASE_URL='postgres://opsolete:opsolete@postgres.default.svc:5432/e2e?sslmode=disable'
+          kubectl exec deploy/postgres -- createdb -U ops e2e
+          helm install e2e charts/ops -f charts/ops/ci/e2e-values.yaml --wait --timeout 5m \
+            --set secrets.DATABASE_URL='postgres://ops:ops@postgres.default.svc:5432/e2e?sslmode=disable'
           sleep 30
-          kubectl port-forward svc/e2e-opsolete 8080:80 >/dev/null & pf=$!
+          kubectl port-forward svc/e2e-ops 8080:80 >/dev/null & pf=$!
           sleep 3
           page=$(curl -sf http://localhost:8080/organization/runners | sed 's/<[^>]*>/ /g' | tr -s ' \n' ' ') || true
           kill $pf
@@ -136,7 +136,7 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Same packages as OCI artifacts: helm install opsolete oci://ghcr.io/opsolete/charts/opsolete
+      # Same packages as OCI artifacts: helm install ops oci://ghcr.io/ops-plane/charts/ops
       - name: Push to ghcr.io
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}

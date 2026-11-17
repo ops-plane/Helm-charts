@@ -1,11 +1,11 @@
 nameOverride: ""
 fullnameOverride: ""
 
-# Plain (non-secret) env vars for the app; see https://opsolete.github.io/Opsolete/docs/config/reference/.
+# Plain (non-secret) env vars for the app; see https://ops-plane.github.io/ops/docs/config/reference/.
 # The chart refuses to render without STATE_STORE and a login method (app >= 0.3.0
 # exits on startup without them).
 config:
-  PUBLIC_URL: https://opsolete.example.com
+  PUBLIC_URL: https://ops.example.com
   # Required. e.g. azblob://tfstate, s3://tfstate?region=eu-west-1, gs://tfstate.
   # Testing only: file:///tmp/state?create_dir=1&metadata=skip (/tmp is an emptyDir,
   # so state is lost on every pod restart; create_dir=1 creates the subfolder).
@@ -49,7 +49,7 @@ imagePullSecrets: []
 app:
   replicas: 1
   image:
-    repository: ghcr.io/opsolete/opsolete-app
+    repository: ghcr.io/ops-plane/ops-app
     tag: ""                  # defaults to the chart appVersion
     pullPolicy: IfNotPresent
   resources: {}
@@ -67,7 +67,7 @@ runner:
   pool: default
   replicas: 1
   image:
-    repository: ghcr.io/opsolete/opsolete-runner
+    repository: ghcr.io/ops-plane/ops-runner
     tag: ""
     pullPolicy: IfNotPresent
   # Extra OPS_* env, e.g. OPS_JOB_TIMEOUT: 45m. OPS_SERVER_URL defaults to the in-cluster Service.

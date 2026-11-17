@@ -3,9 +3,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "opsolete.fullname" . }}
+  name: {{ include "ops.fullname" . }}
   labels:
-    {{- include "opsolete.labels" . | nindent 4 }}
+    {{- include "ops.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -27,7 +27,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "opsolete.fullname" . }}
+                name: {{ include "ops.fullname" . }}
                 port:
                   name: http
 {{- end }}

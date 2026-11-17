@@ -4,14 +4,14 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "opsolete.fullname" . }}-runner
+  name: {{ include "ops.fullname" . }}-runner
   labels:
-    {{- include "opsolete.labels" . | nindent 4 }}
+    {{- include "ops.labels" . | nindent 4 }}
     app.kubernetes.io/component: runner
 spec:
   podSelector:
     matchLabels:
-      {{- include "opsolete.selectorLabels" (list . "runner") | nindent 6 }}
+      {{- include "ops.selectorLabels" (list . "runner") | nindent 6 }}
   policyTypes: [Egress]
   egress:
     - to:

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ops
+description: OPS - from forms to infrastructure (app + runners)
+type: application
+version: 0.3.0
+appVersion: "0.9.0"
+home: https://github.com/ops-plane/ops
+sources:
+  - https://github.com/ops-plane/ops

@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "opsolete.fullname" . }}-runner
+  name: {{ include "ops.fullname" . }}-runner
   labels:
-    {{- include "opsolete.labels" . | nindent 4 }}
+    {{- include "ops.labels" . | nindent 4 }}
     app.kubernetes.io/component: runner
 spec:
   replicas: {{ .Values.runner.replicas }}
   selector:
     matchLabels:
-      {{- include "opsolete.selectorLabels" (list . "runner") | nindent 6 }}
+      {{- include "ops.selectorLabels" (list . "runner") | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "opsolete.selectorLabels" (list . "runner") | nindent 8 }}
+        {{- include "ops.selectorLabels" (list . "runner") | nindent 8 }}
         {{- with .Values.runner.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -33,7 +33,7 @@ spec:
       shareProcessNamespace: false
       terminationGracePeriodSeconds: {{ .Values.runner.terminationGracePeriodSeconds }}
       securityContext:
-        {{- include "opsolete.podSecurityContext" 10001 | nindent 8 }}
+        {{- include "ops.podSecurityContext" 10001 | nindent 8 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -43,14 +43,14 @@ spec:
           image: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.runner.image.pullPolicy }}
           securityContext:
-            {{- include "opsolete.containerSecurityContext" . | nindent 12 }}
+            {{- include "ops.containerSecurityContext" . | nindent 12 }}
           env:
             - name: OPS_SERVER_URL
-              value: {{ printf "http://%s.%s.svc:%v" (include "opsolete.fullname" .) .Release.Namespace .Values.service.port | quote }}
+              value: {{ printf "http://%s.%s.svc:%v" (include "ops.fullname" .) .Release.Namespace .Values.service.port | quote }}
             - name: OPS_RUNNER_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "opsolete.secretName" . }}
+                  name: {{ include "ops.secretName" . }}
                   key: RUNNER_TOKEN
             - name: OPS_RUNNER_NAME
               valueFrom:

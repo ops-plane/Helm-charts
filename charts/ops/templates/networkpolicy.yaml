@@ -1,6 +1,11 @@
 {{- if and .Values.runner.enabled .Values.runner.networkPolicy.enabled }}
-# Runner egress: anywhere but the blocked ranges (the cloud's instance metadata endpoint), so module
-# code a job runs can't take the node's cloud identity. Ingress is unrestricted: runners listen on nothing.
+{{- $v4 := list }}{{- $v6 := list }}
+{{- range .Values.runner.networkPolicy.blockedCIDRs }}
+{{- if contains ":" . }}{{ $v6 = append $v6 . }}{{ else }}{{ $v4 = append $v4 . }}{{ end }}
+{{- end }}
+# Runner egress: DNS, the app, and anywhere outside the cluster but the blocked ranges (the cloud's instance
+# metadata endpoints), so module code a job runs can't take the node's cloud identity. Ingress is
+# unrestricted: runners listen on nothing.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -14,15 +19,35 @@ spec:
       {{- include "ops.selectorLabels" (list . "runner") | nindent 6 }}
   policyTypes: [Egress]
   egress:
+    # DNS to any resolver (kube-dns, NodeLocal DNSCache on 169.254.20.10, the cloud's)
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # the app (by pod: some CNIs (Cilium) don't count pods in an ipBlock)
     - to:
-        # in-cluster pods (the app's Service, DNS): some CNIs (Cilium) don't count them in an ipBlock
+        - podSelector:
+            matchLabels:
+              {{- include "ops.selectorLabels" (list . "app") | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 8080
+    {{- if .Values.runner.networkPolicy.allowInCluster }}
+    - to:
         - namespaceSelector: {}
+    {{- end }}
+    - to:
         - ipBlock:
             cidr: 0.0.0.0/0
-            {{- with .Values.runner.networkPolicy.blockedCIDRs }}
+            {{- with $v4 }}
             except:
               {{- toYaml . | nindent 14 }}
             {{- end }}
         - ipBlock:
             cidr: ::/0
+            {{- with $v6 }}
+            except:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
 {{- end }}

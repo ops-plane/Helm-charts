@@ -14,12 +14,15 @@ config:
   # or AUTH_DEV_USER below.
   OIDC_ISSUER: ""
   OIDC_CLIENT_ID: ""
-  # Testing only: skips login, every visitor is logged in as this user.
+  # Testing only: skips login, every visitor is logged in as this user (needs allowInsecureDevUser).
   # AUTH_DEV_USER: dev@example.com
   # Comma-separated; users get admin rights only if their login email is listed
   # here (include AUTH_DEV_USER when using it).
   ADMIN_EMAILS: ""
   # AZURE_STORAGE_ACCOUNT: mystorageaccount   # needed with azblob://
+
+# Must be true for config.AUTH_DEV_USER to render: it disables authentication for everyone.
+allowInsecureDevUser: false
 
 # Secret env vars. Prefer existingSecret (sops / External Secrets) with the keys
 # DATABASE_URL, SECRET_KEY, RUNNER_TOKEN and optionally OIDC_CLIENT_SECRET. The app gets

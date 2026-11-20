@@ -4,6 +4,7 @@ config:
   STATE_STORE: file:///tmp/state?create_dir=1&metadata=skip
   AUTH_DEV_USER: ci@localhost
   ADMIN_EMAILS: ci@localhost
+allowInsecureDevUser: true
 secrets:
   DATABASE_URL: postgres://ops:ops@postgres.default.svc:5432/ops?sslmode=disable
   SECRET_KEY: ci-only-secret-key-not-for-production

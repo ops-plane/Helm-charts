@@ -65,7 +65,9 @@ jobs:
           expect_fail "STATE_STORE is required" --set config.AUTH_DEV_USER=dev@example.com
           expect_fail "login required" --set config.STATE_STORE=gs://tfstate
           expect_fail "login required" --set config.STATE_STORE=gs://tfstate --set config.OIDC_ISSUER=https://idp.example.com
-          render --set config.STATE_STORE=gs://tfstate --set config.AUTH_DEV_USER=dev@example.com >/dev/null
+          expect_fail "allowInsecureDevUser" --set config.STATE_STORE=gs://tfstate --set config.AUTH_DEV_USER=dev@example.com
+          render --set config.STATE_STORE=gs://tfstate --set config.AUTH_DEV_USER=dev@example.com \
+            --set allowInsecureDevUser=true >/dev/null
           render --set config.STATE_STORE=gs://tfstate \
             --set config.OIDC_ISSUER=https://idp.example.com --set config.OIDC_CLIENT_ID=ops >/dev/null
 

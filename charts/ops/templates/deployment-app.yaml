@@ -10,6 +10,9 @@
 {{- if not (or (and $c.OIDC_ISSUER $c.OIDC_CLIENT_ID) $c.AUTH_DEV_USER) }}
 {{- fail "login required: set config.OIDC_ISSUER + config.OIDC_CLIENT_ID (and OIDC_CLIENT_SECRET), or config.AUTH_DEV_USER for testing" }}
 {{- end }}
+{{- if and $c.AUTH_DEV_USER (not .Values.allowInsecureDevUser) }}
+{{- fail "config.AUTH_DEV_USER logs every visitor in without authentication: set allowInsecureDevUser=true to confirm (testing only)" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

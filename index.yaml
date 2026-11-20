@@ -3,6 +3,19 @@ entries:
   ops:
   - apiVersion: v2
     appVersion: 0.12.0
+    created: "2026-11-20T13:24:10.620427041Z"
+    description: OPS - from forms to infrastructure (app + runners)
+    digest: 38ff924bade2c48a2b14cd869d77408522d533865485daa01f27c987c188a5ef
+    home: https://github.com/ops-plane/ops
+    name: ops
+    sources:
+    - https://github.com/ops-plane/ops
+    type: application
+    urls:
+    - https://github.com/ops-plane/Helm-charts/releases/download/ops-0.5.0/ops-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
+    appVersion: 0.12.0
     created: "2026-11-17T20:36:32.866468722Z"
     description: OPS - from forms to infrastructure (app + runners)
     digest: cd1046b87b86647129df2e0b2ab992e9aa7f8ba0baa43d6bba74eecba1f1f103
@@ -41,4 +54,4 @@ entries:
     urls:
     - https://github.com/Opsolete/Helm-charts/releases/download/opsolete-0.2.0/opsolete-0.2.0.tgz
     version: 0.2.0
-generated: "2026-11-17T20:36:32.866473813Z"
+generated: "2026-11-20T13:24:10.620437757Z"

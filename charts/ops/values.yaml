@@ -51,8 +51,23 @@ app:
   image:
     repository: ghcr.io/ops-plane/ops-app
     tag: ""                  # defaults to the chart appVersion
+    digest: ""               # e.g. sha256:...; set, it's used instead of tag
     pullPolicy: IfNotPresent
-  resources: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  # Ingress to the app pods: the runners and the peers in from only (and kubelet probes on most
+  # CNIs). Needs a CNI that enforces NetworkPolicy.
+  networkPolicy:
+    enabled: false
+    # NetworkPolicyPeers, e.g. the ingress controller:
+    # - namespaceSelector:
+    #     matchLabels:
+    #       kubernetes.io/metadata.name: ingress-nginx
+    from: []
   podAnnotations: {}
   podLabels: {}
   nodeSelector: {}
@@ -69,6 +84,7 @@ runner:
   image:
     repository: ghcr.io/ops-plane/ops-runner
     tag: ""
+    digest: ""
     pullPolicy: IfNotPresent
   # Extra OPS_* env, e.g. OPS_JOB_TIMEOUT: 45m. OPS_SERVER_URL defaults to the in-cluster Service.
   env: {}
@@ -85,7 +101,13 @@ runner:
     blockedCIDRs: ["169.254.0.0/16", "168.63.129.16/32", "fd00:ec2::254/128", "fe80::/10"]
     # Allow egress to every pod in every namespace (by selector: Cilium doesn't match pods by ipBlock).
     allowInCluster: false
-  resources: {}
+  # Terraform and its providers; raise memory for large plans.
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
   podAnnotations: {}
   podLabels: {}
   nodeSelector: {}

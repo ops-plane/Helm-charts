@@ -40,7 +40,7 @@ spec:
       {{- end }}
       containers:
         - name: runner
-          image: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "ops.image" (list . .Values.runner.image) | quote }}
           imagePullPolicy: {{ .Values.runner.image.pullPolicy }}
           securityContext:
             {{- include "ops.containerSecurityContext" . | nindent 12 }}

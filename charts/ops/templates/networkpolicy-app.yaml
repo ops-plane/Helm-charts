@@ -1,0 +1,26 @@
+{{- if .Values.app.networkPolicy.enabled }}
+# App ingress: the runners and app.networkPolicy.from (the ingress controller) only.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ops.fullname" . }}
+  labels:
+    {{- include "ops.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ops.selectorLabels" (list . "app") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "ops.selectorLabels" (list . "runner") | nindent 14 }}
+        {{- with .Values.app.networkPolicy.from }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: 8080
+{{- end }}

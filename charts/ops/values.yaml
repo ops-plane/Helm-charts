@@ -75,11 +75,16 @@ runner:
   # First SIGTERM drains the current job: keep this >= OPS_JOB_TIMEOUT + OPS_JOB_GRACE + 5m
   # (defaults 1h + 10m + 5m), or a long apply is killed before it saves its state.
   terminationGracePeriodSeconds: 4500
-  # Egress for the runner pods: everything but the cloud's instance metadata endpoint, so
-  # module code can't take the node's identity. Needs a CNI that enforces NetworkPolicy.
+  # Egress for the runner pods: DNS, the app, and everything else but blockedCIDRs, so module
+  # code can't take the node's identity. Needs a CNI that enforces NetworkPolicy.
   networkPolicy:
     enabled: true
-    blockedCIDRs: ["169.254.169.254/32"]   # IPv4 ranges
+    # IPv4 and IPv6 ranges: link-local (cloud metadata endpoints), Azure WireServer, AWS IPv6
+    # metadata. Most CNIs match pod, service and node IPs by ipBlock too: add your cluster's
+    # pod, service and node CIDRs (and the API server's) here to keep runners off them.
+    blockedCIDRs: ["169.254.0.0/16", "168.63.129.16/32", "fd00:ec2::254/128", "fe80::/10"]
+    # Allow egress to every pod in every namespace (by selector: Cilium doesn't match pods by ipBlock).
+    allowInCluster: false
   resources: {}
   podAnnotations: {}
   podLabels: {}

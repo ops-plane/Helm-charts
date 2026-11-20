@@ -82,6 +82,8 @@ jobs:
           kubectl set env deployment/postgres POSTGRES_USER=ops POSTGRES_PASSWORD=ops POSTGRES_DB=ops
           kubectl expose deployment postgres --port=5432
           kubectl rollout status deployment/postgres --timeout=180s
+          # No readiness probe, so the rollout ends before initdb does; TCP answers only once the real server is up.
+          timeout 120 sh -c 'until kubectl exec deploy/postgres -- pg_isready -q -h 127.0.0.1 -U ops; do sleep 2; done'
 
       # Installs with every ci/*-values.yaml and waits until app and runner pods are ready.
       - run: ct install ${{ steps.scope.outputs.args }}

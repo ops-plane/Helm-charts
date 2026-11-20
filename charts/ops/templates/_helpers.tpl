@@ -66,3 +66,13 @@ privileged: false
 capabilities:
   drop: ["ALL"]
 {{- end -}}
+
+{{/* usage: include "ops.image" (list . .Values.app.image); digest wins over tag */}}
+{{- define "ops.image" -}}
+{{- $img := index . 1 -}}
+{{- if $img.digest -}}
+{{- printf "%s@%s" $img.repository $img.digest -}}
+{{- else -}}
+{{- printf "%s:%s" $img.repository ($img.tag | default (index . 0).Chart.AppVersion) -}}
+{{- end -}}
+{{- end -}}

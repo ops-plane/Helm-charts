@@ -86,7 +86,11 @@ runner:
     tag: ""
     digest: ""
     pullPolicy: IfNotPresent
-  # Extra OPS_* env, e.g. OPS_JOB_TIMEOUT: 45m. OPS_SERVER_URL defaults to the in-cluster Service.
+  # The app's URL for the runners. Empty = the in-cluster Service over plain http, which carries the
+  # runner token, workspace variables and state unencrypted: set the https URL (config.PUBLIC_URL)
+  # unless a service mesh encrypts pod traffic.
+  serverUrl: ""
+  # Extra OPS_* env, e.g. OPS_JOB_TIMEOUT: 45m.
   env: {}
   # First SIGTERM drains the current job: keep this >= OPS_JOB_TIMEOUT + OPS_JOB_GRACE + 5m
   # (defaults 1h + 10m + 5m), or a long apply is killed before it saves its state.

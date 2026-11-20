@@ -46,7 +46,7 @@ spec:
             {{- include "ops.containerSecurityContext" . | nindent 12 }}
           env:
             - name: OPS_SERVER_URL
-              value: {{ printf "http://%s.%s.svc:%v" (include "ops.fullname" .) .Release.Namespace .Values.service.port | quote }}
+              value: {{ .Values.runner.serverUrl | default (printf "http://%s.%s.svc:%v" (include "ops.fullname" .) .Release.Namespace .Values.service.port) | quote }}
             - name: OPS_RUNNER_TOKEN
               valueFrom:
                 secretKeyRef:
